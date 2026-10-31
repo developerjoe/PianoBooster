@@ -116,6 +116,7 @@ void CSong::seekToStartBar()
     // changing Start Bar also updates the stopped playhead.
     playMusic(true);
     task(0);
+    realTimeEngine(0);
     playMusic(false);
     forceScoreRedraw();
 }

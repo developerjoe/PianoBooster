@@ -51,6 +51,7 @@ CConductor::CConductor()
     m_savedNoteQueue = new CQueue<CMidiEvent>(200);
     m_savedNoteOffQueue = new CQueue<CMidiEvent>(200);
     m_playing = false;
+    m_seekCatchUp = false;
     m_transpose = 0;
     m_latencyFix = 0;
     m_leadLagAdjust = 0;
@@ -383,7 +384,7 @@ void CConductor::playTransposeEvent(CMidiEvent event)
         event.setDatat2(calcBoostVolume(event.channel(), event.data2() ));
 
     // Don't output note on if we are seeking to bar
-    if (!seekingBarNumber())
+    if (!seekingBarNumber() && !m_seekCatchUp)
         playTrackEvent(event); // Play the midi note or event
     else
     {
@@ -821,7 +822,7 @@ void CConductor::addDeltaTime(qint64 ticks)
     m_chordDeltaTime +=ticks;
 }
 
-void CConductor::followPlaying()
+void CConductor::followPlaying(bool seeking)
 {
     if ( m_playMode == PB_PLAY_MODE_listen )
         return;
@@ -832,7 +833,7 @@ void CConductor::followPlaying()
     if (m_wantedChord.length() == 0)
         return;
 
-    if (seekingBarNumber())
+    if (seeking || seekingBarNumber())
     {
         if (deltaAdjustL(m_chordDeltaTime) > -m_stopPoint )
             fetchNextChord();
@@ -948,6 +949,11 @@ void CConductor::realTimeEngine(qint64 mSecTicks)
         return;
 
     if (seekingBarNumber())
+        m_seekCatchUp = true;
+
+    const bool seeking = m_seekCatchUp;
+
+    if (seekingBarNumber())
         ticks = 0;
 
     m_tempo.adjustTempo(&ticks);
@@ -969,7 +975,7 @@ void CConductor::realTimeEngine(qint64 mSecTicks)
 
     addDeltaTime(ticks);
 
-    followPlaying();
+    followPlaying(seeking);
     int type;
     while ( m_playingDeltaTime >= m_leadLagAdjust)
     {
@@ -1003,7 +1009,7 @@ void CConductor::realTimeEngine(qint64 mSecTicks)
             {
                 if (getfollowState() >= PB_FOLLOW_earlyNotes &&
                         (m_playMode == PB_PLAY_MODE_followYou || m_playMode == PB_PLAY_MODE_rhythmTapping) &&
-                        !seekingBarNumber() &&
+                        !seeking &&
                         m_followSkillAdvanced == false)
                 {
                     // Save up the notes until the pianist presses the right key
@@ -1037,8 +1043,11 @@ void CConductor::realTimeEngine(qint64 mSecTicks)
         }
 
         m_playingDeltaTime -= m_nextMidiEvent.deltaTime() * SPEED_ADJUST_FACTOR;
-        followPlaying();
+        followPlaying(seeking);
     }
+
+    if (m_seekCatchUp && m_playingDeltaTime < m_leadLagAdjust)
+        m_seekCatchUp = false;
 }
 
 void CConductor::rewind()
@@ -1052,6 +1061,7 @@ void CConductor::rewind()
     m_lastSound = -1;
     m_rating.reset();
     m_playingDeltaTime = 0;
+    m_seekCatchUp = false;
     m_tempo.reset();
 
     m_songEventQueue->clear();

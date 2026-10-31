@@ -242,7 +242,7 @@ private:
     void findImminentNotesOff();
     void updatePianoSounds();
 
-    void followPlaying();
+    void followPlaying(bool seeking = false);
     void missedNotesColor(CColor color);
 
     int calcBoostVolume(int chan, int volume);
@@ -253,6 +253,7 @@ private:
     qint64 m_playingDeltaTime;
     qint64 m_chordDeltaTime;
     bool m_playing;
+    bool m_seekCatchUp;
 
     int m_transpose;     // the number of semitones to transpose the music
     followState_t m_followState;

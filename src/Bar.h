@@ -78,6 +78,10 @@ public:
         int top = m_startTimeSigTop;
         int bottom = m_startTimeSigBottom;
 
+        // A completed seek marks the next playback tick for flushing. Rewind
+        // starts a new timeline, so that pending flag must not affect a later
+        // seek performed while playback is stopped.
+        m_flushTicks = false;
         setTimeSig( 0 , 0);
         setTimeSig(top, bottom);
         checkGotoBar();
@@ -95,8 +99,8 @@ public:
 
     double getCurrentBarPos()
     {
-        return m_barCounter + static_cast<double>(m_beatCounter)/static_cast<double>(m_currentTimeSigBottom) +
-            static_cast<double>(m_deltaTime)/static_cast<double>(m_beatLength * m_currentTimeSigBottom * SPEED_ADJUST_FACTOR);
+        return m_barCounter + static_cast<double>(m_beatCounter)/static_cast<double>(m_currentTimeSigTop) +
+            static_cast<double>(m_deltaTime)/static_cast<double>(m_barLength * SPEED_ADJUST_FACTOR);
     }
 
     bool seekingBarNumber() { return m_seekingBarNumber;}

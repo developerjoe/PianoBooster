@@ -28,6 +28,8 @@
 
 #include "Bar.h"
 
+#include <cmath>
+
 #define OPTION_DEBUG_BAR     0
 #if OPTION_DEBUG_BAR
 #define ppDEBUG_BAR(args)     ppLogDebug args
@@ -66,7 +68,7 @@ qint64 CBar::addDeltaTime(qint64 ticks)
     m_deltaTime +=ticks;
     if (ticks && m_enablePlayFromBar)
         checkGotoBar();
-    while (m_deltaTime > m_beatLength * SPEED_ADJUST_FACTOR)
+    while (m_deltaTime >= m_beatLength * SPEED_ADJUST_FACTOR)
     {
         m_deltaTime -= m_beatLength * SPEED_ADJUST_FACTOR;
         m_beatCounter++;
@@ -84,8 +86,8 @@ qint64 CBar::addDeltaTime(qint64 ticks)
 
 qint64 CBar::goToBarNumer()
 {
-    const auto ticks = static_cast<qint64>((m_playFromBar - getCurrentBarPos()) *
-                                           m_beatLength * SPEED_ADJUST_FACTOR) + 1;
+    const auto ticks = static_cast<qint64>(std::llround(
+        (m_playFromBar - getCurrentBarPos()) * m_barLength * SPEED_ADJUST_FACTOR));
     addDeltaTime(ticks);
     return ticks;
 }
