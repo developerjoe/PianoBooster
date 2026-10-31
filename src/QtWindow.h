@@ -37,7 +37,6 @@
 #include "GuiTopBar.h"
 #include "GuiPreferencesDialog.h"
 #include "GuiSongDetailsDialog.h"
-#include "GuiLoopingPopup.h"
 #include "Settings.h"
 
 class CGLView;
@@ -62,6 +61,16 @@ public:
 
     void songEventUpdated(eventBits_t eventBits)
     {
+        if ((eventBits & EVENT_BITS_endBarReached) != 0){
+            if (m_sidePanel->isRepeatSong()){
+                m_topBar->on_playFromStartButton_clicked(true);
+            }else{
+                // Treat the segment boundary like the end of a song so the
+                // next Play starts the selected passage again.
+                m_topBar->setPlayButtonState(false, true);
+            }
+            return;
+        }
         if ((eventBits & EVENT_BITS_playingStopped) != 0){
             if (m_sidePanel->isRepeatSong()){
                 m_topBar->on_playFromStartButton_clicked(true);

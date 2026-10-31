@@ -963,7 +963,17 @@ void CConductor::realTimeEngine(qint64 mSecTicks)
     if (seekingBarNumber())
         ticks = m_bar.goToBarNumer();
 
-    setEventBits( m_bar.readEventBits());
+    const eventBits_t barEventBits = m_bar.readEventBits();
+    setEventBits(barEventBits);
+
+    // End Bar is exclusive: stop before advancing the MIDI and Follow You
+    // queues into the first note at the boundary.
+    if ((barEventBits & EVENT_BITS_endBarReached) != 0)
+    {
+        m_playing = false;
+        allSoundOff();
+        return;
+    }
 
 #if OPTION_DEBUG_CONDUCTOR
     if (m_realTimeEventBits | EVENT_BITS_newBarNumber)

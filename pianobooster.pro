@@ -16,7 +16,6 @@ HEADERS   = src/QtWindow.h \
             src/GuiKeyboardSetupDialog.h \
             src/GuiPreferencesDialog.h \
             src/GuiSongDetailsDialog.h \
-            src/GuiLoopingPopup.h \
             src/Settings.h \
             src/Draw.h \
             src/TrackList.h
@@ -26,8 +25,7 @@ FORMS    =  src/GuiTopBar.ui \
             src/GuiMidiSetupDialog.ui \
             src/GuiKeyboardSetupDialog.ui \
             src/GuiPreferencesDialog.ui \
-            src/GuiSongDetailsDialog.ui \
-            src/GuiLoopingPopup.ui
+            src/GuiSongDetailsDialog.ui
 
 RESOURCES  = src/application.qrc
 
@@ -39,7 +37,6 @@ SOURCES   = src/QtMain.cpp  \
             src/GuiKeyboardSetupDialog.cpp \
             src/GuiPreferencesDialog.cpp \
             src/GuiSongDetailsDialog.cpp \
-            src/GuiLoopingPopup.cpp \
             src/GlView.cpp \
             src/MidiFile.cpp  \
             src/MidiTrack.cpp  \

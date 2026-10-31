@@ -64,7 +64,7 @@ void CSong::loadSong(const QString & filename)
     playMusic(false);
     rewind();
     setPlayFromBar(0.0);
-    setLoopingBars(0.0);
+    setEndBar(0.0);
     setEventBits(EVENT_BITS_loadSong);
     if (!m_midiFile->getSongTitle().isEmpty())
         m_songTitle = m_midiFile->getSongTitle();

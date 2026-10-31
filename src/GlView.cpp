@@ -403,8 +403,6 @@ void CGLView::timerEvent(QTimerEvent *event)
 
     if (m_eventBits != 0)
     {
-        if ((m_eventBits & EVENT_BITS_UptoBarReached) != 0)
-            m_song->playFromStartBar();
         if ((m_eventBits & EVENT_BITS_forceFullRedraw) != 0)
             m_forcefullRedraw = m_forceRatingRedraw = m_forceBarRedraw = REDRAW_COUNT;
         if ((m_eventBits & EVENT_BITS_forceRatingRedraw) != 0)

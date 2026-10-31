@@ -104,15 +104,16 @@ void CBar::checkGotoBar()
             m_flushTicks = true; // now throw away ticks before we start the music
         m_seekingBarNumber = false;
 
-        if (m_enableLooping && currentBar > m_playUptoBar )
-            m_eventBits |= EVENT_BITS_UptoBarReached;
+        if (m_enableEndBar && currentBar >= m_endBar)
+            m_eventBits |= EVENT_BITS_endBarReached;
     }
 }
 
 void CBar::setPlayFromBar(double bar)
 {
     m_playFromBar = bar;
-    m_playUptoBar = m_playFromBar + m_loopingBars;
+    if (m_endBar > 0.0 && m_endBar <= m_playFromBar)
+        m_endBar = 0.0;
     setupEnableFlags();
     checkGotoBar();
 }
@@ -125,17 +126,10 @@ void CBar::setPlayFromBar(int bar, int beat, int ticks)
     setPlayFromBar( playFromBar);
 }
 
-void CBar::setPlayUptoBar(double endBar)
+void CBar::setEndBar(double endBar)
 {
-    setLoopingBars(endBar - m_playUptoBar);
-}
-
-void CBar::setLoopingBars(double bars)
-{
-    if (bars < 0.0)
-        bars = 0;
-    m_loopingBars = bars;
-    m_playUptoBar = m_playFromBar + m_loopingBars;
+    if (endBar <= m_playFromBar)
+        endBar = 0.0;
+    m_endBar = endBar;
     setupEnableFlags();
-    checkGotoBar();
 }

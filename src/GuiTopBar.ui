@@ -129,25 +129,6 @@
       <widget class="QSpinBox" name="transposeSpin"/>
      </item>
      <item>
-      <widget class="QToolButton" name="loopingBarsPopupButton">
-       <property name="text">
-        <string/>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>12</width>
-         <height>24</height>
-        </size>
-       </property>
-       <property name="checkable">
-        <bool>true</bool>
-       </property>
-       <property name="arrowType">
-        <enum>Qt::DownArrow</enum>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="QLabel" name="label_3">
        <property name="text">
         <string>Start Bar:</string>
@@ -181,6 +162,29 @@
          <width>24</width>
          <height>24</height>
         </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="endBarLabel">
+       <property name="text">
+        <string>End Bar:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QDoubleSpinBox" name="endBarSpin">
+       <property name="toolTip">
+        <string>Stop before this bar; Off plays to the end of the song</string>
+       </property>
+       <property name="specialValueText">
+        <string>Off</string>
+       </property>
+       <property name="decimals">
+        <number>1</number>
+       </property>
+       <property name="maximum">
+        <double>999.899999999999977</double>
        </property>
       </widget>
      </item>

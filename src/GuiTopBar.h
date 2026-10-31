@@ -62,6 +62,7 @@ public slots:
 private slots:
     void on_speedSpin_valueChanged(int speed);
     void on_startBarSpin_valueChanged(double bar);
+    void on_endBarSpin_valueChanged(double bar);
 
     void on_transposeSpin_valueChanged(int value);
     void on_keyCombo_activated(int index);
@@ -72,7 +73,6 @@ private slots:
     }
 
     void on_saveBarButton_clicked(bool clicked);
-    void on_loopingBarsPopupButton_clicked(bool clicked);
 
 private:
     bool eventFilter(QObject *obj, QEvent *event);

@@ -36,7 +36,7 @@
 #define EVENT_BITS_forceFullRedraw         0x0002 // force the whole screen to be redrawn
 #define EVENT_BITS_forceRatingRedraw       0x0004 // force the score to be redrawn
 #define EVENT_BITS_newBarNumber            0x0008 // force the bar number to be redrawn
-#define EVENT_BITS_UptoBarReached          0x0010 // Used for looping when playing between two bars.
+#define EVENT_BITS_endBarReached           0x0010 // Set when playback reaches the exclusive End Bar.
 #define EVENT_BITS_loadSong                0x0020 // load song
 
 typedef unsigned long eventBits_t;
@@ -61,18 +61,16 @@ public:
     void reset() {
         setTimeSig( 0 , 0);
         m_playFromBar = 0.0;
-        m_playUptoBar = 0.0;
-        m_loopingBars = 0.0;
+        m_endBar = 0.0;
         m_seekingBarNumber = false;
         m_flushTicks = false;
         m_eventBits = 0;
         setupEnableFlags();
     }
 
-    void setPlayUptoBar(double bar);
-    double getPlayUptoBar(){ return m_playUptoBar;}
-    void setLoopingBars(double bars);
-    double getLoopingBars(){ return m_loopingBars;}
+    void setEndBar(double bar);
+    double getEndBar() const { return m_endBar; }
+    bool hasEndBar() const { return m_endBar > 0.0; }
 
     void rewind() {
         int top = m_startTimeSigTop;
@@ -118,8 +116,8 @@ private:
     void checkGotoBar();
     void setupEnableFlags()
     {
-        m_enableLooping = (m_loopingBars > 0.0)?true:false;
-        m_enablePlayFromBar = (m_enableLooping || m_playFromBar > 0.0)?true:false;
+        m_enableEndBar = hasEndBar();
+        m_enablePlayFromBar = m_playFromBar > 0.0;
     }
 
     qint64 m_deltaTime;
@@ -134,12 +132,11 @@ private:
     int m_barCounter;
     int m_beatCounter;
     double m_playFromBar;
-    double m_playUptoBar;
-    double m_loopingBars;
+    double m_endBar;
     bool m_seekingBarNumber;
     bool m_flushTicks;
     eventBits_t m_eventBits;
-    bool m_enableLooping;
+    bool m_enableEndBar;
     bool m_enablePlayFromBar;
 
 };

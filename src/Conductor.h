@@ -190,10 +190,9 @@ public:
     double getCurrentBarPos(){ return m_bar.getCurrentBarPos();}
 
     void setPlayFromBar(double bar){ m_bar.setPlayFromBar(bar);}
-    void setPlayUptoBar(double bar){ m_bar.setPlayUptoBar(bar);}
-    double getPlayUptoBar(){ return m_bar.getPlayUptoBar();}
-    void setLoopingBars(double bars){ m_bar.setLoopingBars(bars);}
-    double getLoopingBars(){ return m_bar.getLoopingBars();}
+    void setEndBar(double bar){ m_bar.setEndBar(bar);}
+    double getEndBar() const { return m_bar.getEndBar();}
+    bool hasEndBar() const { return m_bar.hasEndBar();}
 
     void mutePianistPart(bool state);
     void mapTrack2Channel(int trackNumber, int channelNumber)

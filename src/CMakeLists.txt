@@ -172,7 +172,6 @@ SET( PIANOBOOSTER_SRCS
     GuiKeyboardSetupDialog.cpp
     GuiPreferencesDialog.cpp
     GuiSongDetailsDialog.cpp
-    GuiLoopingPopup.cpp
     GlView.cpp
     ${PB_BASE_SRCS}
     StavePosition.cpp
@@ -201,7 +200,6 @@ SET( PIANOBOOSTER_MOC_HDRS
     GuiKeyboardSetupDialog.h
     GuiPreferencesDialog.h
     GuiSongDetailsDialog.h
-    GuiLoopingPopup.h
 )
 
 # some .ui files
@@ -212,7 +210,6 @@ SET( PIANOBOOSTER_UIS
     ./GuiKeyboardSetupDialog.ui
     ./GuiPreferencesDialog.ui
     ./GuiSongDetailsDialog.ui
-    ./GuiLoopingPopup.ui
 )
 
 # and finally an resource file

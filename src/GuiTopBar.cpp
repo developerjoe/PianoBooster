@@ -30,7 +30,6 @@
 
 #include "GuiTopBar.h"
 #include "TrackList.h"
-#include "GuiLoopingPopup.h"
 
 GuiTopBar::GuiTopBar(QWidget *parent, CSettings* settings)
     : QWidget(parent), m_settings(settings)
@@ -71,6 +70,7 @@ void GuiTopBar::refresh(bool reset)
         reloadKeyCombo(true);
         transposeSpin->setValue(0);
         startBarSpin->setValue(0);
+        endBarSpin->setValue(0);
     }
     int index = 0;
     if (m_song)
@@ -243,7 +243,20 @@ void GuiTopBar::on_startBarSpin_valueChanged(double bar)
     stopMuiscPlaying();
 
     m_song->setPlayFromBar(bar);
+    if (endBarSpin->value() != m_song->getEndBar())
+        endBarSpin->setValue(m_song->getEndBar());
     m_song->seekToStartBar();
+}
+
+void GuiTopBar::on_endBarSpin_valueChanged(double bar)
+{
+    if (!m_song) return;
+
+    stopMuiscPlaying();
+
+    m_song->setEndBar(bar);
+    if (endBarSpin->value() != m_song->getEndBar())
+        endBarSpin->setValue(m_song->getEndBar());
 }
 
 // Stop the muisc playing
@@ -261,24 +274,6 @@ void GuiTopBar::on_saveBarButton_clicked(bool clicked)
     if (!m_song) return;
     double barNumber = m_song->getCurrentBarPos();
     startBarSpin->setValue(barNumber);
-}
-
-void GuiTopBar::on_loopingBarsPopupButton_clicked(bool clicked)
-{
-    Q_UNUSED(clicked)
-    if (!m_song) return;
-
-    m_song->playMusic(false);
-    setPlayButtonState(false);
-
-    QPoint pos = mapToGlobal(loopingBarsPopupButton->pos()) ;
-
-    pos.ry() += loopingBarsPopupButton->height() + 2;
-    pos.rx() += -5; // Tweak the position slightly
-    GuiLoopingPopup *loopingPopup = new GuiLoopingPopup(loopingBarsPopupButton);
-    loopingPopup->init(m_song);
-    loopingPopup->move (pos);
-    loopingPopup->show();
 }
 
 bool GuiTopBar::eventFilter(QObject *obj, QEvent *event)
