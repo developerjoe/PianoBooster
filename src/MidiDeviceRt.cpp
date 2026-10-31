@@ -237,7 +237,7 @@ void CMidiDeviceRt::playMidiEvent(const CMidiEvent & event)
             return; // Don't output any thing yet so just return
 
         case  MIDI_PB_outputRawMidiData: //used for a SYSTEM_EVENT
-            for (size_t i = 0; i < m_rawDataIndex; i++)
+            for (std::size_t i = 0; i < m_rawDataIndex; i++)
                 message.push_back( m_savedRawBytes[i]);
             m_rawDataIndex = 0;
             break;

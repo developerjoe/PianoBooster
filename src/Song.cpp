@@ -56,7 +56,7 @@ void CSong::loadSong(const QString & filename)
      fn = fn.replace('/','\\');
 #endif
     m_midiFile->setLogLevel(3);
-    m_midiFile->openMidiFile(string(fn.toLocal8Bit().data()));
+    m_midiFile->openMidiFile(std::string(fn.toLocal8Bit().data()));
     ppLogInfo("Opening song %s",  fn.toLocal8Bit().data());
     transpose(0);
     midiFileInfo();
@@ -101,6 +101,22 @@ void CSong::rewind()
     this->CConductor::rewind();
     m_scoreWin->reset();
     reset();
+    forceScoreRedraw();
+}
+
+void CSong::seekToStartBar()
+{
+    rewind();
+
+    if (!seekingBarNumber())
+        return;
+
+    // The normal playback task performs the actual seek and rebuilds both
+    // the score and Follow You chord queues. Run that work synchronously so
+    // changing Start Bar also updates the stopped playhead.
+    playMusic(true);
+    task(0);
+    playMusic(false);
     forceScoreRedraw();
 }
 
@@ -246,7 +262,7 @@ static const struct pcNote_s
 bool CSong::pcKeyPress(int key, bool down)
 {
     int i;
-    size_t j;
+    int j;
     CMidiEvent midi;
     const int cfg_pcKeyVolume = 64;
     const int cfg_pcKeyChannel = 1-1;

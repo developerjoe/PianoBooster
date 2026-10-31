@@ -69,6 +69,7 @@ public:
     void regenerateChordQueue();
 
     void rewind();
+    void seekToStartBar();
 
     void playFromStartBar()
     {

@@ -242,7 +242,8 @@ void GuiTopBar::on_startBarSpin_valueChanged(double bar)
 
     stopMuiscPlaying();
 
-    m_song->setPlayFromBar( bar);
+    m_song->setPlayFromBar(bar);
+    m_song->seekToStartBar();
 }
 
 // Stop the muisc playing
