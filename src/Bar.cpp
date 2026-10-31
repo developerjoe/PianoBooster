@@ -66,7 +66,7 @@ qint64 CBar::addDeltaTime(qint64 ticks)
         return 0;
     }
     m_deltaTime +=ticks;
-    if (ticks && m_enablePlayFromBar)
+    if (ticks && (m_enablePlayFromBar || m_enableEndBar))
         checkGotoBar();
     while (m_deltaTime >= m_beatLength * SPEED_ADJUST_FACTOR)
     {

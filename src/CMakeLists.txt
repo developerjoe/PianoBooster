@@ -270,6 +270,20 @@ else()
 endif()
 target_link_libraries (pianobooster ${QT_LIBS} ${OPENGL_LIBRARIES} ${FTGL_LIBRARY} ${RTMIDI_LIBRARIES} ${JACK_LIBRARY} ${FLUIDSYNTH_LIBRARY} ${RTMIDI_LIBRARY})
 
+if(BUILD_TESTING)
+    add_executable(bar_zero_start_loop_test tests/BarZeroStartLoopTest.cpp Bar.cpp)
+    set_target_properties(bar_zero_start_loop_test PROPERTIES
+        AUTOMOC OFF
+        AUTOUIC OFF
+        AUTORCC OFF
+    )
+    target_link_libraries(bar_zero_start_loop_test
+        ${QT_PACKAGE_NAME}::Core
+        ${QT_PACKAGE_NAME}::Widgets
+    )
+    add_test(NAME bar_zero_start_loop COMMAND bar_zero_start_loop_test)
+endif()
+
 if(NOT APPLE)
     INSTALL( FILES ../pianobooster.desktop DESTINATION share/applications )
     INSTALL(TARGETS pianobooster RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
