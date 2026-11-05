@@ -53,7 +53,10 @@ public:
     virtual bool validMidiConnection() {return validMidiOutput();}
 
     QStringList getMidiPortList(midiType_t type);
+    QStringList getMidiControlPortList();
     bool openMidiPort(midiType_t type, const QString &portName);
+    bool openMidiControlPort(const QString &portName);
+    void closeMidiControlPort();
     void closeMidiPort(midiType_t type, int index);
     // based on the fluid synth settings
     virtual int     midiSettingsSetStr(const QString &name, const QString &str);
@@ -72,11 +75,13 @@ public:
 
 private:
     CMidiDeviceBase* m_rtMidiDevice;
+    CMidiDeviceBase* m_midiControlDevice;
 #if WITH_INTERNAL_FLUIDSYNTH
     CMidiDeviceBase* m_fluidSynthMidiDevice;
 #endif
     CMidiDeviceBase* m_selectedMidiInputDevice;
     CMidiDeviceBase* m_selectedMidiOutputDevice;
+    CMidiDeviceBase* m_pendingMidiInputDevice;
     bool m_validOutput;
 };
 

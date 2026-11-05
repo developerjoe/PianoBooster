@@ -323,6 +323,7 @@ void CConductor::reconnectMidi()
                              m_settings->value("Keyboard/HighestNote", 127).toInt());
         }
         openMidiPort(CMidiDevice::MIDI_INPUT, midiInputName);
+        openMidiControlPort(m_settings->value("Midi/ControlInput").toString());
         openMidiPort(CMidiDevice::MIDI_OUTPUT,m_settings->value("Midi/Output").toString());
     }
     m_settings->updateWarningMessages();
@@ -907,7 +908,24 @@ void CConductor::realTimeEngine(qint64 mSecTicks)
         m_pianistTiming += ticks;
 
     while (checkMidiInput() > 0)
-        expandPianistInput(readMidiInput());
+    {
+        const CMidiEvent input = readMidiInput();
+        switch (input.type())
+        {
+        case MIDI_PB_transportPlay:
+            setEventBits(EVENT_BITS_midiTransportPlay);
+            break;
+        case MIDI_PB_transportStop:
+            setEventBits(EVENT_BITS_midiTransportStop);
+            break;
+        case MIDI_PB_transportRewind:
+            setEventBits(EVENT_BITS_midiTransportRewind);
+            break;
+        default:
+            expandPianistInput(input);
+            break;
+        }
+    }
 
     if (getfollowState() == PB_FOLLOW_waiting )
     {

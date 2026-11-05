@@ -90,6 +90,19 @@
              <widget class="QComboBox" name="midiInputCombo"/>
             </item>
             <item row="1" column="0">
+             <widget class="QLabel" name="midiControlLabel">
+              <property name="text">
+               <string>MIDI Control Device:</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QComboBox" name="midiControlCombo"/>
+            </item>
+            <item row="2" column="0">
              <widget class="QLabel" name="label_2">
               <property name="text">
                <string>Midi Output Device:</string>
@@ -99,7 +112,7 @@
               </property>
              </widget>
             </item>
-            <item row="1" column="1">
+            <item row="2" column="1">
              <widget class="QComboBox" name="midiOutputCombo"/>
             </item>
            </layout>

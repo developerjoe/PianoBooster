@@ -61,6 +61,7 @@ void GuiMidiSetupDialog::init(CSong* song, CSettings* settings)
     m_latencyFix = m_song->getLatencyFix();
 
     refreshMidiInputCombo();
+    refreshMidiControlCombo();
     refreshMidiOutputCombo();
 #if WITH_INTERNAL_FLUIDSYNTH
     masterGainSpin->setValue(FLUID_DEFAULT_GAIN);
@@ -100,6 +101,16 @@ void GuiMidiSetupDialog::init(CSong* song, CSettings* settings)
      }
 
     updateFluidInfoStatus();
+}
+
+void GuiMidiSetupDialog::refreshMidiControlCombo()
+{
+    midiControlCombo->clear();
+    midiControlCombo->addItem(tr("None"));
+    midiControlCombo->addItems(m_song->getMidiControlPortList());
+    const int index = midiControlCombo->findText(m_settings->value("Midi/ControlInput").toString());
+    if (index != -1)
+        midiControlCombo->setCurrentIndex(index);
 }
 
 void GuiMidiSetupDialog::setComboFromSetting(QComboBox *combo, const QString &key, const QVariant &defaultValue) {
@@ -148,6 +159,9 @@ void GuiMidiSetupDialog::updateMidiInfoText()
     else
         midiInfoText->append("<span style=\"color:gray\">" + tr("MIDI Input Device:") + " " + midiInputCombo->currentText() +"</span>");
 
+    if (midiControlCombo->currentIndex() != 0)
+        midiInfoText->append("<span style=\"color:gray\">" + tr("MIDI Control Device:") + " " + midiControlCombo->currentText() +"</span>");
+
     if (midiOutputCombo->currentText() == tr("None"))
         midiInfoText->append("<span style=\"color:red\">" + tr("No Sound Output Device selected; Choose a MIDI Output Device") + "</span>");
     else if (midiOutputCombo->currentText().contains("MIDI Through", Qt::CaseInsensitive))
@@ -164,6 +178,12 @@ void GuiMidiSetupDialog::updateMidiInfoText()
 }
 
 void GuiMidiSetupDialog::on_midiInputCombo_activated (int index)
+{
+    Q_UNUSED(index)
+    updateMidiInfoText();
+}
+
+void GuiMidiSetupDialog::on_midiControlCombo_activated (int index)
 {
     Q_UNUSED(index)
     updateMidiInfoText();
@@ -215,6 +235,10 @@ void GuiMidiSetupDialog::accept()
 
     m_settings->setValue("Midi/Input", midiInputCombo->currentText());
     m_song->openMidiPort(CMidiDevice::MIDI_INPUT, midiInputCombo->currentText() );
+    const QString midiControlName = midiControlCombo->currentIndex() == 0
+        ? QString() : midiControlCombo->currentText();
+    m_settings->setValue("Midi/ControlInput", midiControlName);
+    m_song->openMidiControlPort(midiControlName);
     if (midiInputCombo->currentText().startsWith(tr("None")))
         CChord::setPianoRange(PC_KEY_LOWEST_NOTE, PC_KEY_HIGHEST_NOTE);
     else

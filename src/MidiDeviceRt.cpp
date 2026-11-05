@@ -27,6 +27,7 @@
 /*********************************************************************************/
 
 #include "MidiDeviceRt.h"
+#include "MidiTransport.h"
 
 #include <limits>
 
@@ -71,6 +72,8 @@ void CMidiDeviceRt::init()
         }
         try {
             m_midiin = new RtMidiIn();
+            // Transport may arrive as MMC SysEx or MIDI real-time Start/Stop.
+            m_midiin->ignoreTypes(false, false, true);
         }
         catch(RtMidiError &error){
             error.printMessage();
@@ -174,9 +177,15 @@ void CMidiDeviceRt::closeMidiPort(midiType_t type, int index)
     Q_UNUSED(index)
     m_validConnection = false;
     if (type == MIDI_INPUT)
+    {
         m_midiin->closePort();
+        m_midiPorts[0] = -1;
+    }
     else
+    {
         m_midiout->closePort();
+        m_midiPorts[1] = -1;
+    }
 }
 
 //! add a midi event to be played immediately
@@ -280,6 +289,9 @@ CMidiEvent CMidiDeviceRt::readMidiInput()
 {
     CMidiEvent midiEvent;
 
+    if (m_inputMessage.empty())
+        return midiEvent;
+
     if (Cfg::midiInputDump)
     {
         QString str;
@@ -289,10 +301,26 @@ CMidiEvent CMidiDeviceRt::readMidiInput()
         ppLogInfo("midi input %f : %s", m_stamp, qPrintable(str));
     }
 
+    const MidiTransportCommand transport = decodeMidiTransport(m_inputMessage);
+    if (transport != MidiTransportCommand::None)
+    {
+        switch (transport)
+        {
+        case MidiTransportCommand::Play: midiEvent.setType(MIDI_PB_transportPlay); break;
+        case MidiTransportCommand::Stop: midiEvent.setType(MIDI_PB_transportStop); break;
+        case MidiTransportCommand::Rewind: midiEvent.setType(MIDI_PB_transportRewind); break;
+        default: break;
+        }
+        m_inputMessage.clear();
+        return midiEvent;
+    }
+
     int channel = m_inputMessage[0] & 0x0f;
     switch (m_inputMessage[0] & 0xf0 )
     {
     case MIDI_NOTE_ON:
+        if (m_inputMessage.size() < 3)
+            break;
         if (m_inputMessage[2] != 0 )
             midiEvent.noteOnEvent(0, channel, m_inputMessage[1], m_inputMessage[2]);
         else
@@ -300,26 +328,38 @@ CMidiEvent CMidiDeviceRt::readMidiInput()
         break;
 
     case MIDI_NOTE_OFF:
+        if (m_inputMessage.size() < 3)
+            break;
         midiEvent.noteOffEvent(0, channel, m_inputMessage[1], m_inputMessage[2]);
         break;
 
     case MIDI_NOTE_PRESSURE: //MIDI_CMD_NOTE_PRESSURE: //POLY_AFTERTOUCH:
+        if (m_inputMessage.size() < 3)
+            break;
         midiEvent.notePressure(0, channel, m_inputMessage[1], m_inputMessage[2]);
         break;
 
     case MIDI_CONTROL_CHANGE:  //CONTROL_CHANGE:
+        if (m_inputMessage.size() < 3)
+            break;
         midiEvent.controlChangeEvent(0, channel, m_inputMessage[1], m_inputMessage[2]);
         break;
 
     case MIDI_PROGRAM_CHANGE: //PROGRAM_CHANGE:
+        if (m_inputMessage.size() < 2)
+            break;
         midiEvent.programChangeEvent(0, channel, m_inputMessage[1]);
         break;
 
     case MIDI_CHANNEL_PRESSURE: //AFTERTOUCH:
+        if (m_inputMessage.size() < 2)
+            break;
         midiEvent.channelPressure(0, channel, m_inputMessage[1]);
         break;
 
     case MIDI_PITCH_BEND: //PITCH_BEND:
+        if (m_inputMessage.size() < 3)
+            break;
         midiEvent.pitchBendEvent(0, channel, m_inputMessage[1], m_inputMessage[2]);
         break;
     }

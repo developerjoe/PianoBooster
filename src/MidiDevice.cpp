@@ -35,17 +35,20 @@
 CMidiDevice::CMidiDevice()
 {
     m_rtMidiDevice = new CMidiDeviceRt();
+    m_midiControlDevice = new CMidiDeviceRt();
 #if WITH_INTERNAL_FLUIDSYNTH
     m_fluidSynthMidiDevice = new CMidiDeviceFluidSynth();
 #endif
     m_selectedMidiInputDevice = m_rtMidiDevice;
     m_selectedMidiOutputDevice = m_rtMidiDevice;
+    m_pendingMidiInputDevice = nullptr;
     m_validOutput = false;
 }
 
 CMidiDevice::~CMidiDevice()
 {
     delete m_rtMidiDevice;
+    delete m_midiControlDevice;
 #if WITH_INTERNAL_FLUIDSYNTH
     delete m_fluidSynthMidiDevice;
 #endif
@@ -56,7 +59,13 @@ void CMidiDevice::init()
 #if WITH_INTERNAL_FLUIDSYNTH
     m_fluidSynthMidiDevice->setQSettings(qsettings);
 #endif
+    m_midiControlDevice->setQSettings(qsettings);
 
+}
+
+QStringList CMidiDevice::getMidiControlPortList()
+{
+    return m_midiControlDevice->getMidiPortList(MIDI_INPUT);
 }
 
 QStringList CMidiDevice::getMidiPortList(midiType_t type)
@@ -78,7 +87,7 @@ bool CMidiDevice::openMidiPort(midiType_t type, const QString &portName)
     {
         if (m_rtMidiDevice->openMidiPort(type, portName))
         {
-            m_selectedMidiOutputDevice = m_rtMidiDevice;
+            m_selectedMidiInputDevice = m_rtMidiDevice;
             return true;
         }
     }
@@ -105,13 +114,37 @@ bool CMidiDevice::openMidiPort(midiType_t type, const QString &portName)
     return false;
 }
 
+bool CMidiDevice::openMidiControlPort(const QString &portName)
+{
+    closeMidiControlPort();
+    if (portName.isEmpty() || portName.startsWith(tr("None")))
+        return true;
+    return m_midiControlDevice->openMidiPort(MIDI_INPUT, portName);
+}
+
+void CMidiDevice::closeMidiControlPort()
+{
+    m_midiControlDevice->closeMidiPort(MIDI_INPUT, -1);
+    if (m_pendingMidiInputDevice == m_midiControlDevice)
+        m_pendingMidiInputDevice = nullptr;
+}
+
 void CMidiDevice::closeMidiPort(midiType_t type, int index)
 {
-    if (m_selectedMidiOutputDevice == nullptr)
-        return;
-
-    m_selectedMidiOutputDevice->closeMidiPort(type, index);
-    m_selectedMidiOutputDevice = nullptr;
+    if (type == MIDI_INPUT)
+    {
+        if (m_selectedMidiInputDevice != nullptr)
+            m_selectedMidiInputDevice->closeMidiPort(type, index);
+        m_selectedMidiInputDevice = nullptr;
+        if (m_pendingMidiInputDevice == m_rtMidiDevice)
+            m_pendingMidiInputDevice = nullptr;
+    }
+    else
+    {
+        if (m_selectedMidiOutputDevice != nullptr)
+            m_selectedMidiOutputDevice->closeMidiPort(type, index);
+        m_selectedMidiOutputDevice = nullptr;
+    }
 }
 
 //! add a midi event to be played immediately
@@ -127,16 +160,34 @@ void CMidiDevice::playMidiEvent(const CMidiEvent & event)
 // Return the number of events waiting to be read from the midi device
 int CMidiDevice::checkMidiInput()
 {
-    if (m_selectedMidiInputDevice == nullptr)
-        return 0;
+    if (m_pendingMidiInputDevice != nullptr)
+        return 1;
 
-    return m_selectedMidiInputDevice->checkMidiInput();
+    if (m_selectedMidiInputDevice != nullptr)
+    {
+        const int count = m_selectedMidiInputDevice->checkMidiInput();
+        if (count > 0)
+        {
+            m_pendingMidiInputDevice = m_selectedMidiInputDevice;
+            return count;
+        }
+    }
+
+    const int controlCount = m_midiControlDevice->checkMidiInput();
+    if (controlCount > 0)
+        m_pendingMidiInputDevice = m_midiControlDevice;
+    return controlCount;
 }
 
 // reads the real midi event
 CMidiEvent CMidiDevice::readMidiInput()
 {
-    return m_selectedMidiInputDevice->readMidiInput();
+    if (m_pendingMidiInputDevice == nullptr)
+        return CMidiEvent();
+
+    CMidiDeviceBase *device = m_pendingMidiInputDevice;
+    m_pendingMidiInputDevice = nullptr;
+    return device->readMidiInput();
 }
 
 bool CMidiDevice::validMidiOutput()

@@ -56,6 +56,9 @@
 #define MIDI_PB_keySignature        0x0ff6
 #define MIDI_PB_collateRawMidiData  0x0ff7
 #define MIDI_PB_outputRawMidiData   0x0ff8  // Raw data is used for used for a SYSTEM_EVENT
+#define MIDI_PB_transportPlay       0x0ff9
+#define MIDI_PB_transportStop       0x0ffa
+#define MIDI_PB_transportRewind     0x0ffb
 
 /*===================================*/
 /*                                   */
@@ -288,6 +291,9 @@ public:
          case MIDI_PB_keySignature:      r = "MIDI_PB_keySignature";break;
          case MIDI_PB_collateRawMidiData:r = "MIDI_PB_collateRawMidiData";break;
          case MIDI_PB_outputRawMidiData: r = "MIDI_PB_outputRawMidiData";break;
+         case MIDI_PB_transportPlay:     r = "MIDI_PB_transportPlay";break;
+         case MIDI_PB_transportStop:     r = "MIDI_PB_transportStop";break;
+         case MIDI_PB_transportRewind:   r = "MIDI_PB_transportRewind";break;
 
            //      case MIDI_SYSEXEVENT:           r = "MIDI_SYSEXEVENT";break;
          case METAEVENT:                 r = "METAEVENT";break;

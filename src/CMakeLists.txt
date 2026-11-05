@@ -271,6 +271,15 @@ endif()
 target_link_libraries (pianobooster ${QT_LIBS} ${OPENGL_LIBRARIES} ${FTGL_LIBRARY} ${RTMIDI_LIBRARIES} ${JACK_LIBRARY} ${FLUIDSYNTH_LIBRARY} ${RTMIDI_LIBRARY})
 
 if(BUILD_TESTING)
+    add_executable(midi_transport_test tests/MidiTransportTest.cpp)
+    set_target_properties(midi_transport_test PROPERTIES
+        AUTOMOC OFF
+        AUTOUIC OFF
+        AUTORCC OFF
+    )
+    target_include_directories(midi_transport_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+    add_test(NAME midi_transport COMMAND midi_transport_test)
+
     add_executable(bar_zero_start_loop_test tests/BarZeroStartLoopTest.cpp Bar.cpp)
     set_target_properties(bar_zero_start_loop_test PROPERTIES
         AUTOMOC OFF

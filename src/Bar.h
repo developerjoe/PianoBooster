@@ -38,6 +38,9 @@
 #define EVENT_BITS_newBarNumber            0x0008 // force the bar number to be redrawn
 #define EVENT_BITS_endBarReached           0x0010 // Set when playback reaches the exclusive End Bar.
 #define EVENT_BITS_loadSong                0x0020 // load song
+#define EVENT_BITS_midiTransportPlay       0x0040
+#define EVENT_BITS_midiTransportStop       0x0080
+#define EVENT_BITS_midiTransportRewind     0x0100
 
 typedef unsigned long eventBits_t;
 

@@ -48,6 +48,7 @@ public:
 private slots:
     void accept();
     void on_midiInputCombo_activated (int index);
+    void on_midiControlCombo_activated (int index);
     void on_midiOutputCombo_activated (int index);
     void on_latencyFixButton_clicked ( bool checked );
     void on_fluidLoadButton_clicked ( bool checked );
@@ -57,6 +58,7 @@ private:
     void setComboFromSetting(QComboBox *combo, const QString &key, const QVariant &defaultValue = QVariant());
     void updateMidiInfoText();
     void refreshMidiInputCombo();
+    void refreshMidiControlCombo();
     void refreshMidiOutputCombo();
     void updateFluidInfoStatus();
     CSettings* m_settings;

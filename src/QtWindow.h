@@ -61,6 +61,20 @@ public:
 
     void songEventUpdated(eventBits_t eventBits)
     {
+        if ((eventBits & EVENT_BITS_midiTransportRewind) != 0){
+            m_topBar->stopMuiscPlaying();
+            m_song->seekToStartBar();
+            return;
+        }
+        if ((eventBits & EVENT_BITS_midiTransportStop) != 0){
+            m_topBar->stopMuiscPlaying();
+            return;
+        }
+        if ((eventBits & EVENT_BITS_midiTransportPlay) != 0){
+            if (!m_song->playingMusic())
+                m_topBar->on_playButton_clicked(true);
+            return;
+        }
         if ((eventBits & EVENT_BITS_endBarReached) != 0){
             if (m_sidePanel->isRepeatSong()){
                 m_topBar->on_playFromStartButton_clicked(true);
